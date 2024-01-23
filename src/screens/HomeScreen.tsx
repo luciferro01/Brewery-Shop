@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useStore} from '../store/store';
 import {
   BORDERRADIUS,
@@ -43,9 +43,11 @@ const getCoffeeList = (category: string, data: any) => {
     return coffeelist;
   }
 };
+const resetSearchCoffee = () => {};
 
 const HomeScreen = ({navigation}: any) => {
   const tabBarHeight = useBottomTabBarHeight();
+  const ListRef: any = useRef<FlatList>();
   const CoffeeList = useStore((state: any) => state.CoffeeList);
   const BeanList = useStore((state: any) => state.BeansList);
 
@@ -60,10 +62,7 @@ const HomeScreen = ({navigation}: any) => {
   const [sortedCoffee, setSortedCoffee] = useState(
     getCoffeeList(categoryIndex.category, CoffeeList),
   );
-  console.log(BeanList);
-  // useEffect(() => {
-  //   console.log(CoffeeList);
-  // }, [CoffeeList]);
+
   return (
     <View style={styles.ScreenContainer}>
       <ScrollView
@@ -95,6 +94,21 @@ const HomeScreen = ({navigation}: any) => {
             placeholderTextColor={COLORS.primaryLightGreyHex}
             style={styles.TextInputContainer}
           />
+          {searchText.length > 0 ? (
+            <TouchableOpacity
+              onPress={() => {
+                resetSearchCoffee();
+              }}>
+              <CustomIcon
+                style={styles.InputIcon}
+                name="close"
+                size={FONTSIZE.size_16}
+                color={COLORS.primaryLightGreyHex}
+              />
+            </TouchableOpacity>
+          ) : (
+            <></>
+          )}
         </View>
 
         {/* Category Scroller */}
@@ -109,7 +123,16 @@ const HomeScreen = ({navigation}: any) => {
               style={styles.CategoryScrollViewContainer}>
               <TouchableOpacity
                 style={styles.CategoryScrollViewItem}
-                onPress={() => {}}>
+                onPress={() => {
+                  ListRef?.current?.scrollToOffset({
+                    animated: true,
+                    offset: 0,
+                  });
+                  setCategoryIndex({index: index, category: categories[index]});
+                  setSortedCoffee([
+                    ...getCoffeeList(categories[index], CoffeeList),
+                  ]);
+                }}>
                 <Text
                   style={[
                     styles.CategoryText,
@@ -130,7 +153,7 @@ const HomeScreen = ({navigation}: any) => {
         </ScrollView>
 
         <FlatList
-          // ref={ListRef}
+          ref={ListRef}
           horizontal
           ListEmptyComponent={
             <View style={styles.EmptyListContainer}>
