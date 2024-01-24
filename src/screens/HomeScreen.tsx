@@ -43,7 +43,6 @@ const getCoffeeList = (category: string, data: any) => {
     return coffeelist;
   }
 };
-const resetSearchCoffee = () => {};
 
 const HomeScreen = ({navigation}: any) => {
   const tabBarHeight = useBottomTabBarHeight();
@@ -63,6 +62,33 @@ const HomeScreen = ({navigation}: any) => {
     getCoffeeList(categoryIndex.category, CoffeeList),
   );
 
+  const resetSearchCoffee = (search: string) => {
+    if (search != '') {
+      ListRef?.current?.scrollToOffset({
+        animated: true,
+        offset: 0,
+      });
+    }
+    setCategoryIndex({index: 0, category: categories[0]});
+    setSearchText('');
+    setSortedCoffee([...CoffeeList]);
+  };
+
+  const searchCoffee = (search: string) => {
+    if (search != '') {
+      ListRef?.current?.scrollToOffset({
+        animated: true,
+        offset: 0,
+      });
+      setCategoryIndex({index: 0, category: categories[0]});
+      setSortedCoffee([
+        ...CoffeeList.filter((item: any) =>
+          item.name.toLowerCase().includes(search.toLowerCase()),
+        ),
+      ]);
+    }
+  };
+
   return (
     <View style={styles.ScreenContainer}>
       <ScrollView
@@ -75,7 +101,10 @@ const HomeScreen = ({navigation}: any) => {
         </Text>
         {/* Search Input */}
         <View style={styles.InputContainerComponent}>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity
+            onPress={() => {
+              searchCoffee(searchText);
+            }}>
             <CustomIcon
               style={styles.InputIcon}
               name="search"
@@ -97,7 +126,7 @@ const HomeScreen = ({navigation}: any) => {
           {searchText.length > 0 ? (
             <TouchableOpacity
               onPress={() => {
-                resetSearchCoffee();
+                resetSearchCoffee(searchText);
               }}>
               <CustomIcon
                 style={styles.InputIcon}
